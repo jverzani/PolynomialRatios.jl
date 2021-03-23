@@ -1,11 +1,9 @@
 using PolynomialRatios
+using Polynomials
 using Test
 
 @testset "PolynomialRatios.jl" begin
-    # Write your tests here.
-end
 
-@testset "test" begin
     p,q = fromroots(Polynomial, [1,2,3]), fromroots(Polynomial, [2,3,4])
     r,s = ImmutablePolynomial([1,2,3], :x), ImmutablePolynomial([1,2,3], :y)
     t,u = Polynomial([1,2,pi]), ImmutablePolynomial([1.1, 2.2, 3.4], :y)
@@ -16,8 +14,8 @@ end
     @test_throws ArgumentError r // s
     
     pq = p // t # promotes to type of t
-    @test eltype(pq) == eltype(t) 
-    
+    @test pq isa RationalFunction{Float64, :x}
+   
     # pieces
     pp,qq = p // q
     @test (pp,qq) == (p,q)

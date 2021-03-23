@@ -148,7 +148,7 @@ end
     
 # Arithmetic
 function Base.:-(pq::PQ) where {PQ <: AbstractRationalFunction}
-    p, q = pqs(copy.(pq))
+    p, q = copy.(pq)
     rational_function(PQ, -p, q)
 end
 
