@@ -94,3 +94,8 @@ function Base.convert(::Type{R}, pq::RR) where {T,X,P,R<:RationalFunction{T,X,P}
     RationalFunction(p′, q′)
 end
 
+
+function variable(::Type{PQ}) where {T,X,PQ <: RationalFunction{T,X}}
+    x = variable(Polynomial)
+    rational_function(PQ, x, one(x))
+end

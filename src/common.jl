@@ -26,8 +26,8 @@ function Base.show(io::IO, pq::AbstractRationalFunction)
 end
 
 ## helper to make a rational function of given type
-function rational_function(::Type{R}, p::P, q::Q) where {U,X, R<:AbstractRationalFunction{U,X},
-                                                         T,   P<:AbstractPolynomial{T,X},
+function rational_function(::Type{R}, p::P, q::Q) where {R<:AbstractRationalFunction,
+                                                         T,X,   P<:AbstractPolynomial{T,X},
                                                          S,   Q<:AbstractPolynomial{S,X}}
     p′, q′ = promote(p,q)
     constructorof(R)(p,q)
@@ -37,7 +37,11 @@ Base.eltype(pq::Type{<:AbstractRationalFunction{T,X,P}}) where {T,X,P} = P
 Base.eltype(pq::Type{<:AbstractRationalFunction{T,X}}) where {T,X} = Polynomial{T,X}
 Base.eltype(pq::Type{<:AbstractRationalFunction{T}}) where {T} = Polynomial{T,:x}
 Base.eltype(pq::Type{<:AbstractRationalFunction}) = Polynomial{Float64,:x}
-Base.eltypeof(pq::AbstractRationalFunction{T,X,P}) where {T,X,P} = P
+
+Base.eltypeof(pq::PQ) where {PQ<:AbstractRationalFunction} = PQ
+Base.promote_eltypeof(p::P) where {T,X, P<: AbstractRationalFunction{T,X}} = Base.eltypeof(p)
+
+
 
 Base.size(F::AbstractRationalFunction) = ()
 Base.isinf(F::AbstractRationalFunction) = false
@@ -51,11 +55,11 @@ function Base.://(p::PQ,q::PQ′) where {PQ <: AbstractRationalFunction, PQ′ <
     rational_function(promote_type(PQ, PQ′), p0*q1, p1*q0)
 end
 
-function Base.://(p::AbstractPolynomial,q::PQ) where {PQ <: AbstractRationalFunction}
+function Base.://(p::Union{Number,AbstractPolynomial},q::PQ) where {PQ <: AbstractRationalFunction}
     q0,q1 = q
     rational_function(PQ, p*q1, q0)
 end
-function Base.://(p::PQ, q::AbstractPolynomial) where {PQ <: AbstractRationalFunction}
+function Base.://(p::PQ, q::Union{Number,AbstractPolynomial}) where {PQ <: AbstractRationalFunction}
     p0, p1 = p
     rational_function(PQ, p0, p1*q)
 end
@@ -125,6 +129,12 @@ function variable(pq::R) where {R <: AbstractRationalFunction}
     rational_function(R, variable(p), one(q))
 end
 
+function variable(::Type{PQ}) where {PQ <: AbstractRationalFunction}
+    x = variable(eltype(PQ))
+    rational_function(PQ, x, one(x))
+end
+
+    
 # use degree as largest degree of p,q after reduction
 function Polynomials.degree(pq::AbstractRationalFunction)
     pq′ = lowest_terms(pq)
